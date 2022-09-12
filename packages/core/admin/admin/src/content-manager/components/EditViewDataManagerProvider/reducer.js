@@ -3,7 +3,7 @@ import unset from 'lodash/unset';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import take from 'lodash/take';
-import { moveFields } from './utils';
+import { moveFields, progressivelyEnhance } from './utils';
 import { getMaxTempKey } from '../../utils';
 
 const initialState = {
@@ -113,9 +113,17 @@ const reducer = (state, action) =>
         break;
       }
       case 'INIT_FORM': {
+        const { initialValues, relationalFields } = action;
+
         draftState.formErrors = {};
-        draftState.initialData = action.initialValues;
-        draftState.modifiedData = action.initialValues;
+
+        draftState.initialData = progressivelyEnhance(initialValues, state.initialData, {
+          relationalFields,
+        });
+        draftState.modifiedData = progressivelyEnhance(initialValues, state.modifiedData, {
+          relationalFields,
+        });
+
         draftState.modifiedDZName = null;
         draftState.shouldCheckErrors = false;
         break;
